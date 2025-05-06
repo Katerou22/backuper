@@ -5,17 +5,11 @@ import (
 	"gorm.io/gorm"
 )
 
-func NewSqlite(path string) *gorm.DB {
+func NewSqlite(path string) (*gorm.DB, error) {
 	db, err := gorm.Open(sqlite.Open(path), &gorm.Config{})
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
-	// Migrate the schema
-	err = db.AutoMigrate(&Connection{})
-	if err != nil {
-		panic(err)
-	}
-
-	return db
+	return db, nil
 }
