@@ -1,12 +1,13 @@
 package main
 
 import (
+	"backuper/internal/bot"
 	"backuper/internal/db"
 	"backuper/internal/source"
+	"backuper/pkg/env"
 	"context"
 	"fmt"
-	"github.com/go-telegram/bot"
-	"github.com/go-telegram/bot/models"
+	tgbot "github.com/go-telegram/bot"
 	"log"
 	"net/http"
 	"net/url"
@@ -17,8 +18,10 @@ import (
 
 func main() {
 
+	env.LoadEnv(".env")
+
 	//Connect to db
-	database, err := db.NewSqlite("./test.db")
+	database, err := db.NewSqlite(env.Get("SQLITE_PATH", "./test.db"))
 	if err != nil {
 		log.Fatalf("failed to start db: %v", err)
 	}
@@ -28,7 +31,7 @@ func main() {
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt)
 	defer cancel()
 
-	proxyURL, _ := url.Parse("http://127.0.0.1:10809")
+	proxyURL, _ := url.Parse(os.Getenv("PROXY"))
 
 	client := &http.Client{
 		Transport: &http.Transport{
@@ -37,19 +40,21 @@ func main() {
 		Timeout: 10 * time.Second,
 	}
 
-	opts := []bot.Option{
-		bot.WithDefaultHandler(handler),
-		bot.WithHTTPClient(time.Second, client),
+	opts := []tgbot.Option{
+		tgbot.WithDefaultHandler(bot.Handler),
+		tgbot.WithHTTPClient(time.Second, client),
 	}
 
-	b, err := bot.New("8056205347:AAH7H0E2K7sUdWHfNZa67Khf_j3-UL0JIGg", opts...)
+	fmt.Println(os.Getenv("TELEGRAM_TOKEN"))
+
+	b, err := tgbot.New(os.Getenv("TELEGRAM_TOKEN"), opts...)
 	if err != nil {
 		panic(err)
 	}
 
 	b.Start(ctx)
 
-	b.RegisterHandler(bot.HandlerTypeMessageText, "/start", bot.MatchTypeExact, startHandler)
+	b.RegisterHandler(tgbot.HandlerTypeMessageText, "/start", tgbot.MatchTypeExact, bot.Start)
 
 	//
 	//if err != nil {
@@ -67,19 +72,4 @@ func main() {
 
 	//http.ListenAndServe(":8000", b.WebhookHandler())
 
-}
-
-func startHandler(ctx context.Context, b *bot.Bot, update *models.Update) {
-	b.SendMessage(ctx, &bot.SendMessageParams{
-		ChatID:    update.Message.Chat.ID,
-		Text:      "Hello, *" + bot.EscapeMarkdown(update.Message.From.FirstName) + "*",
-		ParseMode: models.ParseModeMarkdown,
-	})
-}
-
-func handler(ctx context.Context, b *bot.Bot, update *models.Update) {
-	b.SendMessage(ctx, &bot.SendMessageParams{
-		ChatID: update.Message.Chat.ID,
-		Text:   "Say /start",
-	})
 }
