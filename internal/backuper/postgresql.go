@@ -1,7 +1,6 @@
 package backuper
 
 import (
-	"backuper/internal/source"
 	"compress/gzip"
 	"fmt"
 	"io"
@@ -12,44 +11,44 @@ import (
 )
 
 type PostgresBackuper struct {
-	Source *source.Source
+	Source DBSource
 }
 
-func (pg *PostgresBackuper) Backup() error {
+func (pg *PostgresBackuper) Backup() (string, error) {
 
 	src := pg.Source
 
 	timestamp := time.Now().Format("20060102_150405")
-	filename := fmt.Sprintf("%s_%s.sql", src.Title, timestamp)
+	filename := fmt.Sprintf("%s_%s.sql", src.GetTitle(), timestamp)
 	filePath := filepath.Join("./backups", filename)
 	gzPath := filePath + ".gz"
 
 	// Ensure backups dir exists
 	err := os.MkdirAll("./backups", 0755)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	// Prepare dump command
 	var cmd *exec.Cmd
 
-	_ = os.Setenv("PGPASSWORD", src.Password)
+	_ = os.Setenv("PGPASSWORD", src.GetPassword())
 	cmd = exec.Command("pg_dump",
-		"-h", src.Host,
-		"-p", fmt.Sprint(src.Port),
-		"-U", src.Username,
-		"-d", src.DB)
+		"-h", src.GetHost(),
+		"-p", fmt.Sprint(src.GetPort()),
+		"-U", src.GetUsername(),
+		"-d", src.GetDBName())
 
 	// Get the output pipe
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
-		return fmt.Errorf("failed to get stdout pipe: %w", err)
+		return "", fmt.Errorf("failed to get stdout pipe: %w", err)
 	}
 
 	// Open gzip file
 	outFile, err := os.Create(gzPath)
 	if err != nil {
-		return fmt.Errorf("failed to create backup file: %w", err)
+		return "", fmt.Errorf("failed to create backup file: %w", err)
 	}
 	defer func(outFile *os.File) {
 		err := outFile.Close()
@@ -68,17 +67,17 @@ func (pg *PostgresBackuper) Backup() error {
 
 	// Start command
 	if err = cmd.Start(); err != nil {
-		return fmt.Errorf("failed to start dump: %w", err)
+		return "", fmt.Errorf("failed to start dump: %w", err)
 	}
 
 	// Copy dump into gzip file
 	if _, err = io.Copy(gzWriter, stdout); err != nil {
-		return fmt.Errorf("failed to copy dump to gzip: %w", err)
+		return "", fmt.Errorf("failed to copy dump to gzip: %w", err)
 	}
 
 	if err = cmd.Wait(); err != nil {
-		return fmt.Errorf("dump command failed: %w", err)
+		return "", fmt.Errorf("dump command failed: %w", err)
 	}
 
-	return nil
+	return gzPath, nil
 }
