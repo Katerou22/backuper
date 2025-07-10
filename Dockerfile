@@ -16,7 +16,7 @@ COPY . .
 RUN go build -o app ./cmd/app/main.go  # Adjust path to your actual main.go
 
 # Stage 2: Runtime with pg_dump, mysqldump, sqlite3
-FROM debian:bullseye-slim
+FROM ubuntu:22.04
 
 RUN apt-get update && apt-get install -y \
     sqlite3 \
