@@ -1,29 +1,30 @@
-# Stage 1: Build the Go binary
-FROM golang:1.24.2-alpine AS builder
+# Stage 1: Build with CGO
+FROM golang:1.24.2 as builder
 
-# Install git (needed for Go modules), and set up working directory
-RUN apk add --no-cache git
 WORKDIR /app
 
-# Copy go mod files and download dependencies
+ENV CGO_ENABLED=1 \
+    GOOS=linux \
+    GOARCH=amd64
+
+RUN apt-get update && apt-get install -y gcc musl-dev libsqlite3-dev
+
 COPY go.mod ./
 RUN go mod download
 
-# Copy source and build
 COPY . .
-RUN go build -o app ./cmd/app/main.go
+RUN go build -o app ./cmd/app/main.go  # Adjust path to your actual main.go
 
-# Stage 2: Final image with dump tools and app
-FROM alpine:latest
+# Stage 2: Runtime with pg_dump, mysqldump, sqlite3
+FROM debian:bullseye-slim
 
-# Install latest pg_dump and mysqldump
-RUN apk add --no-cache postgresql-client mysql-client
+RUN apt-get update && apt-get install -y \
+    sqlite3 \
+    default-mysql-client \
+    postgresql-client \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Copy built binary from builder stage
 COPY --from=builder /app/app /usr/local/bin/app
-
-
-
-# Set working directory and run the app
 WORKDIR /app
+
 ENTRYPOINT ["app"]
