@@ -11,7 +11,7 @@ RUN go mod download
 
 # Copy source and build
 COPY . .
-RUN go build -o app ./cmd/app/main.go  # Adjust path if needed
+RUN go build -o app ./cmd/app/main.go
 
 # Stage 2: Final image with dump tools and app
 FROM alpine:latest
