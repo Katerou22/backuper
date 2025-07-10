@@ -171,13 +171,12 @@ func (h *NewBotHandler) Backup(ctx context.Context, b *tgbot.Bot, update *models
 		Text:   "Please wait...",
 	})
 
-	fmt.Println(msg)
-
 	id := update.Message.Text[len("/backup "):]
 
 	idUint64, _ := strconv.ParseUint(id, 10, 64)
 
 	backup, err := h.SourceHandler.Backup(uint(idUint64))
+	defer os.Remove(backup)
 
 	if err != nil {
 		b.SendMessage(ctx, &tgbot.SendMessageParams{
@@ -189,9 +188,12 @@ func (h *NewBotHandler) Backup(ctx context.Context, b *tgbot.Bot, update *models
 
 	fileContent, _ := os.ReadFile(backup)
 
+	src := h.SourceHandler.Find(uint(idUint64))
+
 	params := &tgbot.SendDocumentParams{
 		ChatID:   update.Message.Chat.ID,
 		Document: &models.InputFileUpload{Filename: backup[len("backup/"):], Data: bytes.NewReader(fileContent)},
+		Caption:  "#" + src.Title,
 	}
 
 	b.SendDocument(ctx, params)

@@ -60,8 +60,13 @@ func (h *Handler) Delete(src *Source) error {
 
 }
 
+func (h *Handler) Find(id uint) *Source {
+	src, _ := h.repo.FindByID(id)
+
+	return src
+}
+
 func (h *Handler) Backup(id uint) (string, error) {
-	fmt.Println("Backup")
 	src, err := h.repo.FindByID(id)
 
 	if err != nil {
@@ -69,7 +74,6 @@ func (h *Handler) Backup(id uint) (string, error) {
 	}
 	//
 	b, err := backuper.NewBackuper(src)
-	print(b)
 
 	if err != nil {
 		return "", err
