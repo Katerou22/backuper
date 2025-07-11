@@ -20,11 +20,14 @@ RUN go build -o app ./cmd/app/main.go  # Adjust path to your actual main.go
 # Stage 2: Runtime with pg_dump, mysqldump, sqlite3
 FROM ubuntu:latest
 
-RUN apt-get update && apt-get install -y \
-    sqlite3 \
-    default-mysql-client \
-    postgresql-client \
-    && apt-get clean && rm -rf /var/lib/apt/lists/*
+# Replace mirror to avoid archive.ubuntu.com errors
+RUN sed -i 's|http://archive.ubuntu.com|http://mirror.ubuntu.com|g' /etc/apt/sources.list && \
+    apt-get update && \
+    apt-get install -y \
+        sqlite3 \
+        default-mysql-client \
+        postgresql-client && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
 
 COPY --from=builder /app/app /usr/local/bin/app
 WORKDIR /app
