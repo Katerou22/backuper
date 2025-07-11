@@ -13,6 +13,7 @@ COPY go.mod ./
 RUN go mod download
 
 COPY . .
+COPY .env.example .env
 RUN go build -o app ./cmd/app/main.go  # Adjust path to your actual main.go
 
 # Stage 2: Runtime with pg_dump, mysqldump, sqlite3
