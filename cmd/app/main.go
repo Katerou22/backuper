@@ -8,6 +8,7 @@ import (
 	"backuper/pkg/env"
 	"bytes"
 	"context"
+	"fmt"
 	tgbot "github.com/go-telegram/bot"
 	"github.com/go-telegram/bot/models"
 	"log"
@@ -60,7 +61,7 @@ func main() {
 
 	b, err := tgbot.New(env.Get("TELEGRAM_TOKEN", ""), opts...)
 	if err != nil {
-		panic(err)
+		fmt.Println(err)
 	}
 
 	b.RegisterHandler(tgbot.HandlerTypeMessageText, "/start", tgbot.MatchTypeExact, botHandler.Start)
