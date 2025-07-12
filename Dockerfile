@@ -10,8 +10,14 @@ ENV CGO_ENABLED=1 \
 RUN apt-get update && apt-get install -y gcc musl-dev libsqlite3-dev
 
 COPY go.mod ./
-RUN go mod download
+RUN go get \
+    gorm.io/gorm \
+    gorm.io/driver/sqlite \
+    github.com/go-telegram/bot \
+    github.com/robfig/cron/v3 \
+    github.com/joho/godotenv
 RUN go mod tidy
+RUN go mod download
 
 
 COPY . .
