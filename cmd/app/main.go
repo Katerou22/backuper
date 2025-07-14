@@ -13,7 +13,6 @@ import (
 	"github.com/go-telegram/bot/models"
 	"log"
 	"net/http"
-	"net/url"
 	"os"
 	"os/signal"
 	"time"
@@ -43,11 +42,11 @@ func main() {
 
 	scheduler := schedule.NewScheduler()
 
-	proxyURL, _ := url.Parse(env.Get("PROXY", ""))
+	//proxyURL, _ := url.Parse(env.Get("PROXY", ""))
 
 	client := &http.Client{
 		Transport: &http.Transport{
-			Proxy: http.ProxyURL(proxyURL),
+			//Proxy: http.ProxyURL(proxyURL),
 		},
 		Timeout: 10 * time.Second,
 	}
