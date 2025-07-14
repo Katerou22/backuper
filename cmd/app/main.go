@@ -24,7 +24,7 @@ var channelId string
 
 func main() {
 
-	env.LoadEnv(".env")
+	//env.LoadEnv(".env")
 
 	cronTime = env.Get("CRON", cronTime)
 
