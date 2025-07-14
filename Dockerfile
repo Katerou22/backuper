@@ -10,6 +10,8 @@ ENV CGO_ENABLED=1 \
 RUN apt-get update && apt-get install -y gcc musl-dev libsqlite3-dev
 
 COPY go.mod ./
+COPY go.sum ./
+
 RUN go get \
     gorm.io/gorm \
     gorm.io/driver/sqlite \
