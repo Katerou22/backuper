@@ -32,12 +32,12 @@ func (schedule *Schedule) AddTask(task func(), cronTime string) {
 
 	fmt.Println("Added Task on " + cronTime)
 	schedule.cron.AddFunc(cronTime, func() {
-		fmt.Printf("Running task at %s\n", time.Now())
-		task()
+		fmt.Printf("Running task at %s\n", time.Now().Format("2006-01-02 15:04:05"))
+		go task()
 	})
 }
 
 func (schedule *Schedule) Run() {
-	fmt.Println("Running schedule at " + time.Now().String())
+	fmt.Println("Running schedule at " + time.Now().Format("2006-01-02 15:04:05"))
 	schedule.cron.Start()
 }

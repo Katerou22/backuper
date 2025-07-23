@@ -18,7 +18,7 @@ import (
 	"time"
 )
 
-var cronTime = "0 4 * *"
+var cronTime = "0 0 4 * * *"
 var channelId string
 
 func main() {
@@ -71,12 +71,12 @@ func main() {
 
 	scheduler.AddTask(BackupAll(ctx, b, sourceHandler), cronTime)
 
-	scheduler.Run()
-
 	b.SendMessage(ctx, &tgbot.SendMessageParams{
 		ChatID: channelId,
 		Text:   "Bot started with cron: " + cronTime,
 	})
+
+	scheduler.Run()
 
 	b.Start(ctx)
 
