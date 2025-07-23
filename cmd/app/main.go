@@ -23,7 +23,7 @@ var channelId string
 
 func main() {
 
-	//env.LoadEnv(".env")
+	env.LoadEnv(".env")
 
 	cronTime = env.Get("CRON", cronTime)
 
@@ -87,6 +87,7 @@ func BackupAll(ctx context.Context, b *tgbot.Bot, sourceHandler *source.Handler)
 	return func() {
 		sources := sourceHandler.List()
 
+		fmt.Printf("Backing up all databases at: %s\n", time.Now().Format("2006-01-02 15:04:05"))
 		for _, src := range sources {
 
 			backup, err := sourceHandler.Backup(src.ID)
