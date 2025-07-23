@@ -33,7 +33,7 @@ func (schedule *Schedule) AddTask(task func(), cronTime string) {
 	fmt.Println("Added Task on " + cronTime)
 	schedule.cron.AddFunc(cronTime, func() {
 		fmt.Printf("Running task at %s\n", time.Now())
-		go task()
+		task()
 	})
 }
 
