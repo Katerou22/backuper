@@ -38,6 +38,6 @@ func (schedule *Schedule) AddTask(task func(), cronTime string) {
 }
 
 func (schedule *Schedule) Run() {
-	fmt.Println("Running schedule")
+	fmt.Println("Running schedule at " + time.Now().String())
 	schedule.cron.Start()
 }
