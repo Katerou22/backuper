@@ -1,15 +1,16 @@
 package bot
 
 import (
-	"backuper/internal/source"
 	"bytes"
 	"context"
 	"fmt"
-	tgbot "github.com/go-telegram/bot"
-	"github.com/go-telegram/bot/models"
 	"os"
 	"strconv"
 	"strings"
+
+	"backuper/internal/source"
+	tgbot "github.com/go-telegram/bot"
+	"github.com/go-telegram/bot/models"
 )
 
 type NewBotHandler struct {
@@ -38,7 +39,7 @@ func (h *NewBotHandler) Handler(ctx context.Context, b *tgbot.Bot, update *model
 
 	}
 
-	//b.SendMessage(ctx, &tgbot.SendMessageParams{ChatID: update.Message.Chat.ID, Text: "TEST"})
+	// b.SendMessage(ctx, &tgbot.SendMessageParams{ChatID: update.Message.Chat.ID, Text: "TEST"})
 
 }
 
@@ -56,7 +57,7 @@ func (h *NewBotHandler) MyID(ctx context.Context, b *tgbot.Bot, update *models.U
 
 	}
 
-	//b.SendMessage(ctx, &tgbot.SendMessageParams{ChatID: update.Message.Chat.ID, Text: "TEST"})
+	// b.SendMessage(ctx, &tgbot.SendMessageParams{ChatID: update.Message.Chat.ID, Text: "TEST"})
 
 }
 
@@ -176,7 +177,7 @@ func (h *NewBotHandler) Backup(ctx context.Context, b *tgbot.Bot, update *models
 	idUint64, _ := strconv.ParseUint(id, 10, 64)
 
 	backup, err := h.SourceHandler.Backup(uint(idUint64))
-	defer os.Remove(backup)
+	// defer os.Remove(backup)
 
 	if err != nil {
 		b.SendMessage(ctx, &tgbot.SendMessageParams{
